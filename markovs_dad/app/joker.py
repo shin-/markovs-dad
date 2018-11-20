@@ -5,6 +5,11 @@ __generator = None
 
 
 def populate_generator():
+    """
+        Create and populate a Generator object with the API's data.
+        This is essentially a singleton. Care should be applied when
+        manipulating in a threaded environment.
+    """
     global __generator
     api_client = Client()
     try:
@@ -20,6 +25,9 @@ def populate_generator():
 
 
 def get_joke():
+    """
+        Generate a "joke" using the populated generator singleton.
+    """
     if __generator is None:
         raise ValueError('populate_generator needs to be called first')
     return __generator.generate_chain() + '\n'
