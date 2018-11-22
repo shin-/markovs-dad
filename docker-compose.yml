@@ -6,3 +6,21 @@ services:
       target: base
     ports:
       - ${WEB_PORT:-5000}:5000
+    environment:
+      USE_CACHE: "true"
+      REDIS_HOST: cache
+      REDIS_DB: 0
+      REDIS_PORT: 6379
+    depends_on:
+      - cache
+
+  cache:
+    image: redis:5.0.1-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - type: volume
+        source: redis_data
+        target: /data
+
+volumes:
+  redis_data:

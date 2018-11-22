@@ -1,3 +1,5 @@
+import json
+
 from collections import Counter
 from random import choice
 
@@ -30,6 +32,28 @@ class WeightedGraphNode(object):
         if not elements:
             return None
         return choice(elements)
+
+    def serialize(self):
+        """
+            Create and return a dict representation of the node to be
+            serialized with the graph.
+        """
+        followers_rep = dict(
+            [(n.word, c) for (n, c) in self.followers.items()]
+        )
+        return {
+            'word': self.word,
+            'followers': followers_rep,
+        }
+
+    def load_followers(self, rep, graph):
+        """
+            Update the followers counter from the serialized representation
+            of the node. This method is not re-entrant.
+        """
+        followers = rep['followers']
+        for word, count in followers.items():
+            self.followers.update({graph.index[word]: count})
 
 
 class WeightedGraph(object):
@@ -64,3 +88,33 @@ class WeightedGraph(object):
             after.add_follower(node)
 
         return node
+
+    def serialize(self):
+        """
+            Create a JSON serialization of the graph for caching purposes.
+        """
+        starters_rep = [s.word for s in self.starters]
+        index_rep = {}
+        for word, node in self.index.items():
+            index_rep[word] = node.serialize()
+
+        return json.dumps({
+            'index': index_rep,
+            'starters': starters_rep,
+        })
+
+    @classmethod
+    def unserialize(cls, rep):
+        """
+            Load a serialized representation of a WeightedGraph object, as
+            created by the serialize() method.
+        """
+        rep = json.loads(rep)
+        g = cls()
+        for word in rep['index'].keys():
+            g.index[word] = WeightedGraphNode(word)
+        for word, node_rep in rep['index'].items():
+            g.index[word].load_followers(node_rep, g)
+        for word in rep['starters']:
+            g.starters.add(g.index[word])
+        return g

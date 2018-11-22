@@ -6,7 +6,7 @@ from .graph import WeightedGraph
 class Generator(object):
     """
         A Markov chain generator. It must be initialized using the
-        initialize_graph method before it can be used.
+        initialize_graph or load_graph method before it can be used.
     """
     def __init__(self):
         self.graph = WeightedGraph()
@@ -22,6 +22,13 @@ class Generator(object):
             current_node = None
             for word in sentence.split():
                 current_node = self.graph.add_word(word, current_node)
+        self.initialized = True
+
+    def load_graph(self, serialized_graph):
+        """
+            Load the internal graph from a serialized representation.
+        """
+        self.graph = WeightedGraph.unserialize(serialized_graph)
         self.initialized = True
 
     def generate_chain(self, nmax=25):
