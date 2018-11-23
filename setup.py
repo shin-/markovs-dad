@@ -9,9 +9,10 @@ ROOT_DIR = os.path.dirname(__file__)
 SOURCE_DIR = os.path.join(ROOT_DIR)
 
 requirements = [
-    'requests==2.20.1',
     'Flask==1.0.2',
     'gevent==1.3.7',
+    'redis==3.0.1',
+    'requests==2.20.1',
 ]
 
 test_requirements = [
